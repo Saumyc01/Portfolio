@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saumya Christian — Digital Product Designer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;500;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #08080a;
+            --surface-color: #111115;
+            --surface-border: #1f1f26;
+            --text-primary: #ededed;
+            --text-secondary: #8a8a93;
+            --text-muted: #52525a;
+            --accent-color: #e2e8f0;
+            --accent-highlight: #ffffff;
+            --font-heading: 'Syne', sans-serif;
+            --font-body: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --transition-smooth: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            selection-background-color: var(--accent-color);
+            selection-color: var(--bg-color);
+        }
+
+        ::selection {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        body {
+            position: relative;
+            cursor: default;
+        }
+
+        /* Canvas Particle Background & Cursor Canvas */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Grain Overlay */
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.035;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Typography Helper Classes */
+        .font-mono { font-family: var(--font-mono); }
+        .font-heading { font-family: var(--font-heading); }
+        .text-muted { color: var(--text-muted); }
+        .text-secondary { color: var(--text-secondary); }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: calc(100% - 4rem);
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: rgba(13, 13, 17, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--surface-border);
+            border-radius: 999px;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-brand {
+            font-family: var(--font-heading);
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            text-decoration: none;
+            color: var(--text-primary);
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            letter-spacing: 0.05em;
+            transition: color 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Containers & Sections */
+        section {
+            padding: 8rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 4rem;
+            border-bottom: 1px solid var(--surface-border);
+            padding-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .section-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        .section-subtitle {
+            font-family: var(--font-mono);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: 6rem;
+            padding-bottom: 4rem;
+        }
+
+        .hero-title-greeting {
+            font-family: var(--font-mono);
+            font-size: clamp(1rem, 2vw, 1.25rem);
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .hero-title-main {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 7vw, 6rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 2rem;
+        }
+
+        .interactive-morph {
+            display: inline-block;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--text-muted);
+            padding-bottom: 0.1em;
+            cursor: pointer;
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+
+        .interactive-morph:hover {
+            border-color: var(--text-primary);
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 4rem;
+            align-items: flex-end;
+            margin-top: 2rem;
+        }
+
+        .hero-description {
+            font-size: clamp(1.1rem, 2vw, 1.35rem);
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            text-decoration: none;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border: 1px solid var(--text-primary);
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #ffffff;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--surface-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        /* SELECTED WORK */
+        .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6rem;
+        }
+
+        .project-card {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 3rem;
+            padding: 2.5rem;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            transition: var(--transition-smooth);
+            position: relative;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .project-card:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .project-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .project-meta {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-name {
+            font-family: var(--font-heading);
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .project-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-weight: 300;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 0.35rem 0.75rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--surface-border);
+            border-radius: 999px;
+            color: var(--text-secondary);
+        }
+
+        .project-visual {
+            width: 100%;
+            height: 320px;
+            background: #18181f;
+            border-radius: 8px;
+            border: 1px solid var(--surface-border);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .project-placeholder-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* DESIGN BETWEEN WORLDS (IDENTITY) */
+        .identity-section {
+            text-align: center;
+            padding: 10rem 2rem;
+        }
+
+        .identity-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 4rem;
+        }
+
+        .worlds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .world-card {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            padding: 2.5rem 1.5rem;
+            border-radius: 12px;
+            text-align: left;
+            transition: var(--transition-smooth);
+            cursor: default;
+        }
+
+        .world-card:hover {
+            border-color: var(--text-secondary);
+            transform: translateY(-6px);
+            background: #15151b;
+        }
+
+        .world-word {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .world-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        /* ABOUT ME */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .about-story {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .about-story p {
+            margin-bottom: 1.5rem;
+        }
+
+        .progression-chain {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .chain-item {
+            padding: 0.5rem 1rem;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+
+        .chain-arrow {
+            color: var(--text-muted);
+        }
+
+        .skills-matrix {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .skill-group-title {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        /* EXPERIENCE TIMELINE */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: relative;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 2rem;
+            padding: 2.5rem;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            transition: var(--transition-smooth);
+        }
+
+        .timeline-item:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .timeline-num {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .timeline-role {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .timeline-company {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .timeline-date {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .timeline-bullets {
+            margin-top: 1.5rem;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .timeline-bullets li {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 1.25rem;
+            font-weight: 300;
+        }
+
+        .timeline-bullets li::before {
+            content: "—";
+            position: absolute;
+            left: 0;
+            color: var(--text-muted);
+        }
+
+        /* BEYOND THE PIXELS */
+        .personal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .portrait-wrapper {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .portrait-canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        .portrait-caption {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .personal-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .personal-quote {
+            font-size: 1.35rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .exploring-list {
+            list-style: none;
+            display: flex;
+            flex-direction: flex-start;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .exploring-item {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 999px;
+            color: var(--text-secondary);
+        }
+
+        /* CONTACT / LET'S TALK */
+        .contact-section {
+            text-align: center;
+            padding: 10rem 2rem 8rem 2rem;
+        }
+
+        .contact-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 6vw, 5.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .contact-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .contact-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .email-link {
+            font-family: var(--font-mono);
+            font-size: clamp(1.2rem, 3vw, 2rem);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-bottom: 1px solid var(--surface-border);
+            padding-bottom: 0.5rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .email-link:hover {
+            border-color: var(--text-primary);
+        }
+
+        /* FOOTER */
+        footer {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--surface-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 900px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .project-card {
+                grid-template-columns: 1fr;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .personal-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .timeline-num {
+                display: none;
+            }
+
+            nav {
+                width: calc(100% - 2rem);
+                top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Grain Overlay -->
+    <div class="grain-overlay"></div>
+
+    <!-- Canvas Interactive Cursor & Particles -->
+    <div id="canvas-container">
+        <canvas id="particle-canvas"></canvas>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="nav-brand">Saumya Christian</a>
+        <ul class="nav-links">
+            <li><a href="#work">Work</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- 01 — HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-title-greeting">Hi, I'm Saumya Christian.</div>
+        <h1 class="hero-title-main">
+            I'm a <span class="interactive-morph" id="morph-text" data-hoverable="true" data-cursor-text="EXPLORE">Digital Product Designer</span>
+        </h1>
+        <div class="hero-grid">
+            <p class="hero-description">
+                I design responsive digital products and experiences that balance usability, visual clarity, accessibility, and technology. My work sits between design and development, with a curiosity for AI and emerging experiences.
+            </p>
+            <div class="hero-ctas">
+                <a href="#work" class="btn btn-primary" data-hoverable="true" data-cursor-text="VIEW">EXPLORE MY WORK ↓</a>
+                <a href="#contact" class="btn btn-secondary" data-hoverable="true" data-cursor-text="TALK">LET'S TALK ↗</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 02 — SELECTED WORK -->
+    <section id="work">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">SELECTED WORK</h2>
+                <div class="section-subtitle">A few things I've designed, explored, and built.</div>
+            </div>
+        </div>
+
+        <div class="project-list">
+            <!-- Project Placeholder 01 -->
+            <a href="#contact" class="project-card" data-hoverable="true" data-cursor-text="VIEW PROJECT →">
+                <div class="project-info">
+                    <div>
+                        <div class="project-meta">
+                            <span>2024 — Present</span>
+                            <span>Honeywell</span>
+                        </div>
+                        <h3 class="project-name">Enterprise Product Experience System</h3>
+                        <p class="project-desc">
+                            Architecting scalable responsive UI components and accessibility-compliant design systems (WCAG 2.1) across enterprise digital tools.
+                        </p>
+                    </div>
+                    <div class="project-tags">
+                        <span class="tag">Design Systems</span>
+                        <span class="tag">WCAG 2.1</span>
+                        <span class="tag">Figma / Framer</span>
+                        <span class="tag">Agile</span>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <canvas class="project-placeholder-canvas" data-pattern="grid"></canvas>
+                </div>
+            </a>
+
+            <!-- Project Placeholder 02 -->
+            <a href="#contact" class="project-card" data-hoverable="true" data-cursor-text="VIEW PROJECT →">
+                <div class="project-info">
+                    <div>
+                        <div class="project-meta">
+                            <span>2022 — 2023</span>
+                            <span>Yellow Chalk Studio</span>
+                        </div>
+                        <h3 class="project-name">Multi-Platform Digital Frameworks</h3>
+                        <p class="project-desc">
+                            End-to-end product design, usability testing, and stakeholder interview alignment for responsive web and mobile digital products.
+                        </p>
+                    </div>
+                    <div class="project-tags">
+                        <span class="tag">UX / UI</span>
+                        <span class="tag">Usability Testing</span>
+                        <span class="tag">Responsive Web</span>
+                        <span class="tag">Mobile Apps</span>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <canvas class="project-placeholder-canvas" data-pattern="waves"></canvas>
+                </div>
+            </a>
+
+            <!-- Project Placeholder 03 -->
+            <a href="#contact" class="project-card" data-hoverable="true" data-cursor-text="VIEW PROJECT →">
+                <div class="project-info">
+                    <div>
+                        <div class="project-meta">
+                            <span>2022</span>
+                            <span>Rivulet Digital</span>
+                        </div>
+                        <h3 class="project-name">Visual Systems & AI Exploration</h3>
+                        <p class="project-desc">
+                            Crafting modular iconography, visual hierarchy, storyboards, and early-stage AI-driven workflow explorations for digital interfaces.
+                        </p>
+                    </div>
+                    <div class="project-tags">
+                        <span class="tag">Iconography</span>
+                        <span class="tag">Visual Hierarchy</span>
+                        <span class="tag">AI Workflows</span>
+                        <span class="tag">Storyboarding</span>
+                    </div>
+                </div>
+                <div class="project-visual">
+                    <canvas class="project-placeholder-canvas" data-pattern="nodes"></canvas>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- 03 — DESIGN + TECHNOLOGY -->
+    <section class="identity-section">
+        <h2 class="identity-title">I DESIGN BETWEEN WORLDS.</h2>
+        <div class="worlds-grid">
+            <div class="world-card" data-hoverable="true">
+                <div class="world-word">PRODUCT</div>
+                <div class="world-desc">Turning complex problems into clear, structured, and scalable digital experiences.</div>
+            </div>
+            <div class="world-card" data-hoverable="true">
+                <div class="world-word">INTERACTION</div>
+                <div class="world-desc">Designing the nuanced micro-details and feedback loops that make interfaces feel intuitive.</div>
+            </div>
+            <div class="world-card" data-hoverable="true">
+                <div class="world-word">AI</div>
+                <div class="world-desc">Exploring generative AI as an active creative partner and core UX paradigm.</div>
+            </div>
+            <div class="world-card" data-hoverable="true">
+                <div class="world-word">CODE</div>
+                <div class="world-desc">Understanding front-end translation (HTML, CSS, JS, React) to bridge design and engineering.</div>
+            </div>
+            <div class="world-card" data-hoverable="true">
+                <div class="world-word">IMMERSIVE</div>
+                <div class="world-desc">Exploring spatial interfaces, AR/VR paradigms, and emerging interactive models.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 04 — ABOUT ME -->
+    <section id="about">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">ABOUT ME</h2>
+                <div class="section-subtitle">Designer. Researcher. Problem solver. Curious about what's next.</div>
+            </div>
+        </div>
+
+        <div class="about-grid">
+            <div class="about-story">
+                <p>
+                    My trajectory as a designer stems from a foundational background in <strong>Industrial Design</strong>, where I developed an appreciation for physical form, human ergonomics, and system thinking.
+                </p>
+                <p>
+                    Transitioning into digital spaces, I pursued a <strong>Master of Arts in Web Design and Development at New York Institute of Technology</strong>. This progression allows me to approach digital products with both physical discipline and digital fluency.
+                </p>
+
+                <div class="progression-chain">
+                    <span class="chain-item">Industrial Design</span>
+                    <span class="chain-arrow">→</span>
+                    <span class="chain-item">UX / UI</span>
+                    <span class="chain-arrow">→</span>
+                    <span class="chain-item">Digital Products</span>
+                    <span class="chain-arrow">→</span>
+                    <span class="chain-item">Technology</span>
+                </div>
+            </div>
+
+            <div class="skills-matrix">
+                <div>
+                    <div class="skill-group-title">// Core Disciplines</div>
+                    <div class="skill-tags">
+                        <span class="tag">UX/UI Design</span>
+                        <span class="tag">Product Design</span>
+                        <span class="tag">Interaction Design</span>
+                        <span class="tag">Visual Design</span>
+                        <span class="tag">Design Systems</span>
+                        <span class="tag">Accessibility (WCAG)</span>
+                        <span class="tag">Usability Testing</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="skill-group-title">// Technical Toolkit & Code</div>
+                    <div class="skill-tags">
+                        <span class="tag">Figma</span>
+                        <span class="tag">Framer</span>
+                        <span class="tag">HTML / CSS</span>
+                        <span class="tag">Tailwind CSS</span>
+                        <span class="tag">JavaScript</span>
+                        <span class="tag">React</span>
+                        <span class="tag">Analytics-Driven Iteration</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 05 — EXPERIENCE -->
+    <section id="experience">
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">EXPERIENCE</h2>
+                <div class="section-subtitle">Professional history and documented track record.</div>
+            </div>
+        </div>
+
+        <div class="timeline">
+            <!-- Experience 01 -->
+            <div class="timeline-item" data-hoverable="true">
+                <div class="timeline-num">01</div>
+                <div>
+                    <div class="timeline-header">
+                        <div class="timeline-role">UX/UI Designer <span class="timeline-company">@ Honeywell</span></div>
+                        <div class="timeline-date">Aug 2024 — Present</div>
+                    </div>
+                    <ul class="timeline-bullets">
+                        <li>Designed and refined responsive UI components and interactive prototypes using Figma and Framer.</li>
+                        <li>Enforced strict web accessibility standards following WCAG 2.1 guidelines across core platform flows.</li>
+                        <li>Partnered closely with developer teams within Agile workflows to ensure design integrity and seamless front-end translation.</li>
+                        <li>Leveraged behavioral analytics to evaluate user interaction and iterate on existing product features.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Experience 02 -->
+            <div class="timeline-item" data-hoverable="true">
+                <div class="timeline-num">02</div>
+                <div>
+                    <div class="timeline-header">
+                        <div class="timeline-role">Product Designer <span class="timeline-company">@ Yellow Chalk Design Studio</span></div>
+                        <div class="timeline-date">May 2022 — May 2023</div>
+                    </div>
+                    <ul class="timeline-bullets">
+                        <li>Delivered end-to-end responsive web and mobile digital product systems for diverse client engagements.</li>
+                        <li>Conducted structured usability testing sessions and primary stakeholder interviews to define product requirements.</li>
+                        <li>Created high-fidelity interactive prototypes and collaborated directly with engineering teams during development handoff.</li>
+                        <li>Utilized qualitative feedback and platform analytics to refine navigation structures and core user journeys.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Experience 03 -->
+            <div class="timeline-item" data-hoverable="true">
+                <div class="timeline-num">03</div>
+                <div>
+                    <div class="timeline-header">
+                        <div class="timeline-role">UX/UI & Graphic Design Intern <span class="timeline-company">@ Rivulet Digital</span></div>
+                        <div class="timeline-date">Jan 2022 — May 2022</div>
+                    </div>
+                    <ul class="timeline-bullets">
+                        <li>Developed custom icon sets, vector illustrations, and cohesive visual hierarchy systems for web interfaces.</li>
+                        <li>Assisted in storyboarding user journeys and executing preliminary usability evaluations.</li>
+                        <li>Explored early-stage AI-driven design tools and workflows to enhance visual exploration and speed up prototyping.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 06 — THE DESIGNER BEHIND THE SCREEN -->
+    <section>
+        <div class="section-header">
+            <div>
+                <h2 class="section-title">BEYOND THE PIXELS</h2>
+                <div class="section-subtitle">Perspective, curiosities, and ongoing research.</div>
+            </div>
+        </div>
+
+        <div class="personal-grid">
+            <div class="portrait-wrapper">
+                <canvas id="portrait-canvas" class="portrait-canvas"></canvas>
+                <div class="portrait-caption">FIG 01. DIGITAL PORTRAIT LAB</div>
+            </div>
+            <div class="personal-content">
+                <div class="personal-quote">
+                    "I'm interested in the space where design, technology, and human behavior meet."
+                </div>
+                <p class="text-secondary" style="font-weight: 300; line-height: 1.6;">
+                    Outside of day-to-day product design, I spend time exploring emergent mediums, studying interface paradigms for artificial intelligence, and testing the limits of interactive tools.
+                </p>
+                <div>
+                    <div class="skill-group-title">// Currently Exploring</div>
+                    <ul class="exploring-list">
+                        <li class="exploring-item">Artificial Intelligence</li>
+                        <li class="exploring-item">Interactive Experiences</li>
+                        <li class="exploring-item">Immersive Technology</li>
+                        <li class="exploring-item">Design Systems</li>
+                        <li class="exploring-item">Creative Technology</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 07 — LET'S TALK -->
+    <section class="contact-section" id="contact">
+        <h2 class="contact-title">LET'S MAKE SOMETHING<br>INTERESTING.</h2>
+        <div class="contact-subtitle">Have a product, idea, or experiment in mind? Let's talk.</div>
+        
+        <div class="contact-actions">
+            <a href="mailto:saumyachristian50@gmail.com" class="email-link" data-hoverable="true" data-cursor-text="SEND EMAIL">saumyachristian50@gmail.com</a>
+            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                <a href="mailto:saumyachristian50@gmail.com" class="btn btn-primary" data-hoverable="true" data-cursor-text="EMAIL">START A CONVERSATION ↗</a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener" class="btn btn-secondary" data-hoverable="true" data-cursor-text="LINKEDIN">LINKEDIN ↗</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 08 — FOOTER -->
+    <footer>
+        <div>
+            <strong style="color: var(--text-primary);">SAUMYA CHRISTIAN</strong> — Digital Product Designer
+        </div>
+        <ul class="footer-links">
+            <li><a href="#work">Work</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li>
+        </ul>
+        <div>
+            Designed with curiosity. © <span id="year">2026</span>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT ENGINE -->
+    <script>
+        // Set dynamic current year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        /* ==========================================================
+           PARTICLE CURSOR & INTERACTIVE CANVAS ENGINE
+           ========================================================== */
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        // Mouse Tracker
+        const mouse = {
+            x: width / 2,
+            y: height / 2,
+            targetX: width / 2,
+            targetY: height / 2,
+            speed: 0,
+            hoverText: '',
+            isHovering: false
+        };
+
+        window.addEventListener('mousemove', (e) => {
+            const dx = e.clientX - mouse.targetX;
+            const dy = e.clientY - mouse.targetY;
+            mouse.speed = Math.sqrt(dx * dx + dy * dy);
+            mouse.targetX = e.clientX;
+            mouse.targetY = e.clientY;
+        });
+
+        // Particle System Setup
+        const PARTICLE_COUNT = 32;
+        const particles = [];
+
+        class Particle {
+            constructor() {
+                this.x = mouse.x;
+                this.y = mouse.y;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.radius = Math.random() * 2 + 1;
+                this.alpha = Math.random() * 0.5 + 0.3;
+                this.friction = 0.88;
+                this.ease = 0.08 + Math.random() * 0.05;
+            }
+
+            update() {
+                // Ease towards mouse with inertia
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                
+                this.vx += dx * this.ease * 0.05;
+                this.vy += dy * this.ease * 0.05;
+
+                // Spread on rapid mouse movement
+                if (mouse.speed > 5) {
+                    this.vx += (Math.random() - 0.5) * (mouse.speed * 0.1);
+                    this.vy += (Math.random() - 0.5) * (mouse.speed * 0.1);
+                }
+
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(237, 237, 237, ${this.alpha})`;
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push(new Particle());
+        }
+
+        // Render Loop for Particle Cursor
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Smooth main cursor position
+            mouse.x += (mouse.targetX - mouse.x) * 0.15;
+            mouse.y += (mouse.targetY - mouse.y) * 0.15;
+
+            // Render Particle cloud
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+
+            // Draw contextual cursor label if hovering interactive elements
+            if (mouse.isHovering && mouse.hoverText) {
+                ctx.font = '11px "JetBrains Mono", monospace';
+                ctx.fillStyle = '#ffffff';
+                ctx.letterSpacing = '1px';
+                
+                const padding = 10;
+                const textWidth = ctx.measureText(mouse.hoverText).width;
+                const badgeWidth = textWidth + padding * 2;
+                const badgeHeight = 24;
+                const badgeX = mouse.x + 15;
+                const badgeY = mouse.y - 15;
+
+                // Pill background
+                ctx.fillStyle = 'rgba(17, 17, 21, 0.9)';
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect(badgeX, badgeY, badgeWidth, badgeHeight, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                // Text
+                ctx.fillStyle = '#ededed';
+                ctx.fillText(mouse.hoverText, badgeX + padding, badgeY + 16);
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        // Only run particle cursor on non-touch desktop devices
+        if (window.matchMedia('(pointer: fine)').matches) {
+            animateParticles();
+        }
+
+        /* ==========================================================
+           HOVER DETECTION FOR INTERACTIVE ELEMENTS
+           ========================================================== */
+        const hoverables = document.querySelectorAll('[data-hoverable="true"], a, button, .world-card, .timeline-item');
+        
+        hoverables.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                mouse.isHovering = true;
+                mouse.hoverText = el.getAttribute('data-cursor-text') || 'EXPLORE →';
+            });
+            el.addEventListener('mouseleave', () => {
+                mouse.isHovering = false;
+                mouse.hoverText = '';
+            });
+        });
+
+        /* ==========================================================
+           01 — HERO TEXT MORPH ENGINE (Kinetic Hover Morph)
+           ========================================================== */
+        const morphText = document.getElementById('morph-text');
+        const titles = [
+            "Digital Product Designer",
+            "UX/UI Designer",
+            "AI Creative",
+            "Interaction Designer",
+            "AR/VR Designer",
+            "Experience Designer"
+        ];
+        
+        let currentTitleIndex = 0;
+        let isMorphing = false;
+
+        function morphToNextTitle() {
+            if (isMorphing) return;
+            isMorphing = true;
+
+            const targetText = titles[(currentTitleIndex + 1) % titles.length];
+            let currentText = titles[currentTitleIndex];
+            let step = 0;
+
+            const interval = setInterval(() => {
+                step++;
+                // Create glitch/scramble effect during transition
+                const scrambled = targetText
+                    .split('')
+                    .map((char, index) => {
+                        if (index < step) return char;
+                        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_#/<>!*';
+                        return chars[Math.floor(Math.random() * chars.length)];
+                    })
+                    .join('');
+
+                morphText.textContent = scrambled;
+
+                if (step >= targetText.length) {
+                    clearInterval(interval);
+                    morphText.textContent = targetText;
+                    currentTitleIndex = (currentTitleIndex + 1) % titles.length;
+                    isMorphing = false;
+                }
+            }, 30);
+        }
+
+        morphText.addEventListener('mousemove', () => {
+            if (!isMorphing) {
+                morphToNextTitle();
+            }
+        });
+
+        /* ==========================================================
+           CANVAS PLACEHOLDER GRAPHICS FOR PROJECTS & PORTRAIT
+           ========================================================== */
+        // Canvas visuals generator for project cards
+        document.querySelectorAll('.project-placeholder-canvas').forEach(canvasEl => {
+            const ctx = canvasEl.getContext('2d');
+            const pattern = canvasEl.getAttribute('data-pattern');
+            
+            function renderPattern() {
+                const w = canvasEl.width = canvasEl.offsetWidth;
+                const h = canvasEl.height = canvasEl.offsetHeight;
+
+                ctx.fillStyle = '#111115';
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.strokeStyle = '#282832';
+                ctx.lineWidth = 1;
+
+                if (pattern === 'grid') {
+                    const step = 20;
+                    for (let x = 0; x < w; x += step) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, h);
+                        ctx.stroke();
+                    }
+                    for (let y = 0; y < h; y += step) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, y);
+                        ctx.lineTo(w, y);
+                        ctx.stroke();
+                    }
+                } else if (pattern === 'waves') {
+                    ctx.beginPath();
+                    for (let x = 0; x < w; x += 5) {
+                        const y = h / 2 + Math.sin(x * 0.03) * 30;
+                        if (x === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                } else if (pattern === 'nodes') {
+                    for (let i = 0; i < 15; i++) {
+                        const nx = (Math.sin(i * 99) * 0.5 + 0.5) * w;
+                        const ny = (Math.cos(i * 33) * 0.5 + 0.5) * h;
+                        ctx.beginPath();
+                        ctx.arc(nx, ny, 3, 0, Math.PI * 2);
+                        ctx.fillStyle = '#3a3a45';
+                        ctx.fill();
+                    }
+                }
+            }
+
+            renderPattern();
+            window.addEventListener('resize', renderPattern);
+        });
+
+        // Generative Lab Graphic for Portrait Section
+        const portraitCanvas = document.getElementById('portrait-canvas');
+        if (portraitCanvas) {
+            const pCtx = portraitCanvas.getContext('2d');
+            let pTime = 0;
+
+            function drawPortraitVisual() {
+                const w = portraitCanvas.width = portraitCanvas.offsetWidth;
+                const h = portraitCanvas.height = portraitCanvas.offsetHeight;
+
+                pCtx.fillStyle = '#111115';
+                pCtx.fillRect(0, 0, w, h);
+
+                pTime += 0.01;
+
+                pCtx.strokeStyle = '#333340';
+                pCtx.lineWidth = 1;
+
+                const cx = w / 2;
+                const cy = h / 2;
+
+                for (let i = 0; i < 12; i++) {
+                    const r = 30 + i * 15 + Math.sin(pTime + i) * 5;
+                    pCtx.beginPath();
+                    pCtx.arc(cx, cy, r, 0, Math.PI * 2);
+                    pCtx.stroke();
+                }
+
+                requestAnimationFrame(drawPortraitVisual);
+            }
+            drawPortraitVisual();
+        }
+    </script>
+</body>
+</html>
