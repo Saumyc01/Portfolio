@@ -851,7 +851,7 @@
         </div>
     </section>
 
-    <!-- 03 — DESIGN + TECHNOLOGY -->
+    <!-- 03 — DESIGN BETWEEN WORLDS -->
     <section class="identity-section">
         <h2 class="identity-title">I DESIGN BETWEEN WORLDS.</h2>
         <div class="worlds-grid">
@@ -1118,14 +1118,12 @@
             }
 
             update() {
-                // Ease towards mouse with inertia
                 const dx = mouse.x - this.x;
                 const dy = mouse.y - this.y;
                 
                 this.vx += dx * this.ease * 0.05;
                 this.vy += dy * this.ease * 0.05;
 
-                // Spread on rapid mouse movement
                 if (mouse.speed > 5) {
                     this.vx += (Math.random() - 0.5) * (mouse.speed * 0.1);
                     this.vy += (Math.random() - 0.5) * (mouse.speed * 0.1);
@@ -1154,17 +1152,14 @@
         function animateParticles() {
             ctx.clearRect(0, 0, width, height);
 
-            // Smooth main cursor position
             mouse.x += (mouse.targetX - mouse.x) * 0.15;
             mouse.y += (mouse.targetY - mouse.y) * 0.15;
 
-            // Render Particle cloud
             particles.forEach(p => {
                 p.update();
                 p.draw();
             });
 
-            // Draw contextual cursor label if hovering interactive elements
             if (mouse.isHovering && mouse.hoverText) {
                 ctx.font = '11px "JetBrains Mono", monospace';
                 ctx.fillStyle = '#ffffff';
@@ -1177,7 +1172,6 @@
                 const badgeX = mouse.x + 15;
                 const badgeY = mouse.y - 15;
 
-                // Pill background
                 ctx.fillStyle = 'rgba(17, 17, 21, 0.9)';
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
                 ctx.lineWidth = 1;
@@ -1186,7 +1180,6 @@
                 ctx.fill();
                 ctx.stroke();
 
-                // Text
                 ctx.fillStyle = '#ededed';
                 ctx.fillText(mouse.hoverText, badgeX + padding, badgeY + 16);
             }
@@ -1194,7 +1187,6 @@
             requestAnimationFrame(animateParticles);
         }
 
-        // Only run particle cursor on non-touch desktop devices
         if (window.matchMedia('(pointer: fine)').matches) {
             animateParticles();
         }
@@ -1216,7 +1208,7 @@
         });
 
         /* ==========================================================
-           01 — HERO TEXT MORPH ENGINE (Kinetic Hover Morph)
+           01 — HERO TEXT MORPH ENGINE (AUTOMATIC + HOVER TRIGGERED)
            ========================================================== */
         const morphText = document.getElementById('morph-text');
         const titles = [
@@ -1236,12 +1228,10 @@
             isMorphing = true;
 
             const targetText = titles[(currentTitleIndex + 1) % titles.length];
-            let currentText = titles[currentTitleIndex];
             let step = 0;
 
             const interval = setInterval(() => {
                 step++;
-                // Create glitch/scramble effect during transition
                 const scrambled = targetText
                     .split('')
                     .map((char, index) => {
@@ -1262,6 +1252,12 @@
             }, 30);
         }
 
+        // Automatic interval morph every 2.5 seconds
+        setInterval(() => {
+            morphToNextTitle();
+        }, 2500);
+
+        // Keep mousemove morph trigger active on hover as well
         morphText.addEventListener('mousemove', () => {
             if (!isMorphing) {
                 morphToNextTitle();
@@ -1271,7 +1267,6 @@
         /* ==========================================================
            CANVAS PLACEHOLDER GRAPHICS FOR PROJECTS & PORTRAIT
            ========================================================== */
-        // Canvas visuals generator for project cards
         document.querySelectorAll('.project-placeholder-canvas').forEach(canvasEl => {
             const ctx = canvasEl.getContext('2d');
             const pattern = canvasEl.getAttribute('data-pattern');
